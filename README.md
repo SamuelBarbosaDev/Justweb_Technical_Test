@@ -47,27 +47,66 @@ Columns_B = [‘id’, ‘id_cliente’, ‘data_cancelamento’, ‘id_contrato
 ### a) Escreva um código em Python que te permita encontrar uma lista de id_clientes dentro do dataframe A.
 
 **Resposta:**
-Em Branco
+```python
+lista_clientes_1 = df_a['id_cliente'].unique()
+display(lista_clientes_1)
+```
 
 ### b) Existe uma forma mais eficiente de se resolver o item a)? Justifique sua resposta.
 
 **Resposta:**
-Em Branco
+```python
+lista_clientes_2 = set(df_a['id_cliente'])
+display(lista_clientes_2)
+```
+
+Set é um tipo de dado do python, uma coleção desordenada onde não pode haver números repetidos, então basicamente ao transformar uma lista de 'id_cliente' e um set ele elimina automaticamente as duplicatas, isso é mais eficiente em termos de memória, aqui está a definição de set segundo a documentação do **python**: 
+
+"5.4. Conjuntos
+
+Python também inclui um tipo de dados para conjuntos, chamado set. Um conjunto é uma coleção desordenada de elementos, sem elementos repetidos. Usos comuns para conjuntos incluem a verificação eficiente da existência de objetos e a eliminação de itens duplicados. Conjuntos também suportam operações matemáticas como união, interseção, diferença e diferença simétrica.
+
+Chaves ou a função set() podem ser usados para criar conjuntos."
 
 ### c) Como obter a data_cancelamento (campo do dataframe B) vinculado aos registros do dataframe A?
 
 **Resposta:**
-Em Branco
+```python
+df_a_mais_b = df_a.merge(
+    right=df_b[['id_cliente', 'data_cancelamento']],
+    how='inner',
+    on='id_cliente'
+)
+display(df_a_mais_b)
+```
 
 ### d) Encontre quantos clientes temos por data de contratacao no dataframe A.
 
 **Resposta:**
-Em Branco
+```python
+qtd_clientes_contratacao = (
+    df_a
+    .groupby(['data_contratacao'])
+    .agg({'id_cliente': 'count'})
+    .rename(columns={'id_cliente': 'clientes'})
+    .reset_index()
+)
+display(qtd_clientes_contratacao)
+```
 
 ### e) Encontre quantos clientes temos por data de cancelamento no dataframe B.
 
 **Resposta:**
-Em Branco
+```python
+qtd_clientes_cancelamento = (
+    df_b
+    .groupby(['data_cancelamento'])
+    .agg({'id_cliente': 'count'})
+    .rename(columns={'id_cliente': 'clientes'})
+    .reset_index()
+)
+display(qtd_clientes_cancelamento)
+```
 
 
 ## Questão 3 (Django):
