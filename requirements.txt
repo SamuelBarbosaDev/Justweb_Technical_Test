@@ -26,7 +26,9 @@ prompt-toolkit==3.0.39
 psutil==5.9.5
 ptyprocess==0.7.0
 pure-eval==0.2.2
+py4j==0.10.9.7
 Pygments==2.16.1
+pyspark==3.4.1
 python-dateutil==2.8.2
 pytz==2023.3.post1
 pyzmq==25.1.1
