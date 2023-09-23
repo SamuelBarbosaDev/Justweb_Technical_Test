@@ -1,19 +1,25 @@
 from rest_framework import status
 from rest_framework import generics
 from django.http import JsonResponse
+from rest_framework import permissions
 from agendamentos.models import Agendamentos
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from agendamentos.serializers import AgendamentosSerializer
+from rest_framework.decorators import (
+    api_view,
+    permission_classes
+)
 
 
 class CadastrarAgendamento(generics.CreateAPIView):
     queryset = Agendamentos.objects.all()
     serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 @api_view(http_method_names=['PATCH', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
 def cancelar_e_editar(request, pk):
     obj = get_object_or_404(klass=Agendamentos, id=pk)
 
@@ -46,8 +52,10 @@ def cancelar_e_editar(request, pk):
 class ListarAgendamentos(generics.ListCreateAPIView):
     queryset = Agendamentos.objects.all()
     serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
 
 class AgendamentoEspecifico(generics.RetrieveAPIView):
     queryset = Agendamentos.objects.all()
     serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticated]
