@@ -44,6 +44,7 @@ Columns_A = [‘id’, ‘id_cliente’, ‘data_contratacao’, ‘id_contrato�
 Columns_B = [‘id’, ‘id_cliente’, ‘data_cancelamento’, ‘id_contrato’, ‘valor_contrato’]
 ```
 
+
 ### a) Escreva um código em Python que te permita encontrar uma lista de id_clientes dentro do dataframe A.
 
 **Resposta:**
@@ -51,6 +52,10 @@ Columns_B = [‘id’, ‘id_cliente’, ‘data_cancelamento’, ‘id_contrato
 lista_clientes_1 = df_a['id_cliente'].unique()
 display(lista_clientes_1)
 ```
+```output
+array([101, 102, 103, 104, 105])
+```
+
 
 ### b) Existe uma forma mais eficiente de se resolver o item a)? Justifique sua resposta.
 
@@ -59,7 +64,9 @@ display(lista_clientes_1)
 lista_clientes_2 = set(df_a['id_cliente'])
 display(lista_clientes_2)
 ```
-
+```output
+{101, 102, 103, 104, 105}
+```
 *Set é um tipo de dado do python, uma coleção desordenada onde não pode haver números repetidos, então basicamente ao transformar uma lista de **'id_cliente'** e um set ele elimina automaticamente as duplicatas, isso é mais eficiente em termos de memória, aqui está a definição de set segundo a documentação do **python**:*
 
 *"5.4. Conjuntos*
@@ -67,6 +74,7 @@ display(lista_clientes_2)
 *Python também inclui um tipo de dados para conjuntos, chamado set. Um conjunto é uma coleção desordenada de elementos, sem elementos repetidos. Usos comuns para conjuntos incluem a verificação eficiente da existência de objetos e a eliminação de itens duplicados. Conjuntos também suportam operações matemáticas como união, interseção,diferença e diferença simétrica.*
 
 *Chaves ou a função set() podem ser usados para criar conjuntos." - [Documentação do python](https://docs.python.org/pt-br/3/tutorial/datastructures.html)* 
+
 
 ### c) Como obter a data_cancelamento (campo do dataframe B) vinculado aos registros do dataframe A?
 
@@ -79,6 +87,15 @@ df_a_mais_b = df_a.merge(
 )
 display(df_a_mais_b)
 ```
+```output
+id	id_cliente	data_contratacao	id_contrato	valor_contrato	data_cancelamento
+0	1	101	2023-01-15	201	1000.00	2023-05-15
+1	2	102	2023-02-20	202	1500.50	2023-06-20
+2	3	103	2023-03-10	203	800.25	2023-07-10
+3	4	104	2023-04-05	204	1200.75	2023-08-05
+4	5	105	2023-05-12	205	2000.50	2023-09-12
+```
+
 
 ### d) Encontre quantos clientes temos por data de contratacao no dataframe A.
 
@@ -93,6 +110,15 @@ qtd_clientes_contratacao = (
 )
 display(qtd_clientes_contratacao)
 ```
+```output
+data_contratacao	clientes
+0	2023-01-15	1
+1	2023-02-20	1
+2	2023-03-10	1
+3	2023-04-05	1
+4	2023-05-12	1
+```
+
 
 ### e) Encontre quantos clientes temos por data de cancelamento no dataframe B.
 
@@ -107,7 +133,14 @@ qtd_clientes_cancelamento = (
 )
 display(qtd_clientes_cancelamento)
 ```
-
+```output
+data_cancelamento	clientes
+0	2023-05-15	1
+1	2023-06-20	1
+2	2023-07-10	1
+3	2023-08-05	1
+4	2023-09-12	1
+```
 
 ## Questão 3 (Django):
 Você precisa desenvolver o back-end de um determinado sistema e a
@@ -316,24 +349,244 @@ seguintes questões que foram trazidas pela pessoa do financeiro:
 ### a) Qual é o valor total de títulos emitidos no mês de junho de 2020? Qual é o valor total de títulos com vencimento no mesmo período? Por que esses números são diferentes?
 
 **Resposta:**
-Em Branco
+
+Valor total de títulos emitidos em julho (mês 6) de 2020:
+```sql
+select
+    sum(valor)
+from base_de_dados
+where (
+    year(data_emissao) = 2020
+    and month(data_emissao) = 6.
+)
+```
+```output
++-----------------+
+|       sum(valor)|
++-----------------+
+|540360.0000000052|
++-----------------+
+```
+
+
+Valor total de títulos vencimentos em julho (mês 6) de 2020:
+```sql
+select
+    sum(valor)
+from base_de_dados
+
+where (
+    year(data_vencimento) = 2020
+    and month(data_vencimento) = 6
+)
+```
+```output
++-----------------+
+|       sum(valor)|
++-----------------+
+|3076802.819998371|
++-----------------+
+```
+
+
+Quantidade de títulos emitidos em julho (mês 6) de 2020:
+```sql
+select
+    count(data_emissao)
+from base_de_dados
+
+where (
+    year(data_emissao) = 2020
+    and month(data_emissao) = 6
+)
+```
+```output
++-------------------+
+|count(data_emissao)|
++-------------------+
+|               5423|
++-------------------+
+```
+
+
+Quantidade de títulos vencimento em julho (mês 6) de 2020:
+```sql
+select
+    count(data_vencimento)
+from base_de_dados
+
+where (
+    year(data_vencimento) = 2020
+    and month(data_vencimento) = 6
+)
+```
+```output
++----------------------+
+|count(data_vencimento)|
++----------------------+
+|                 32082|
++----------------------+
+```
+
+*O motivo é que havia mais vencimentos agendados para julho (mês 6) de 2020 do que a emissão de boletos em julho (mês 6) de 2020.*
 
 ### b) Gerar um relatório com todos os clientes que tiveram títulos pagos em julho de 2020.
 
 **Resposta:**
-Em Branco
+```sql
+select
+    id,
+    data_emissao,
+    data_vencimento,
+    valor,
+    status,
+    pagamento_data,
+    baixa_data,
+    pagamento_valor
+from base_de_dados
+
+where (
+    year(pagamento_data) = 2020
+    and month(pagamento_data) = 6
+)
+```
+```output
++------+-------------------+-------------------+-----+------+-------------------+-------------------+---------------+
+|    id|       data_emissao|    data_vencimento|valor|status|     pagamento_data|         baixa_data|pagamento_valor|
++------+-------------------+-------------------+-----+------+-------------------+-------------------+---------------+
+| 95256|2019-05-24 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-01 00:00:00|2020-06-02 09:17:42|           79.9|
+| 99775|2019-05-28 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-02 00:00:00|2020-06-03 10:42:59|          81.62|
+|100545|2019-05-28 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-30 00:00:00|2020-07-01 08:54:37|          85.26|
+|101580|2019-05-29 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-04 00:00:00|2020-06-05 09:41:29|          71.62|
+|104833|2019-05-31 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-09 00:00:00|2020-06-10 09:32:15|          72.18|
+|106498|2019-06-03 00:00:00|2020-06-01 00:00:00| 64.9|     R|2020-06-19 00:00:00|2020-06-22 08:49:31|          67.98|
+|108380|2019-06-04 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-30 00:00:00|2020-07-01 08:54:39|          85.26|
+|109324|2019-06-04 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-08 00:00:00|2020-06-09 08:56:19|          72.06|
+|109649|2019-06-04 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-23 00:00:00|2020-06-24 08:53:03|         105.42|
+|111695|2019-06-06 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-05 00:00:00|2020-06-08 10:48:32|         102.54|
+|111926|2019-06-06 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-15 00:00:00|2020-06-16 09:29:25|         104.14|
+|112441|2019-06-06 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-01 00:00:00|2020-06-02 09:17:48|           79.9|
+|112810|2019-06-06 00:00:00|2020-06-01 00:00:00| 79.9|     R|2020-06-01 00:00:00|2020-06-02 17:14:23|           79.9|
+|115133|2019-06-10 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-19 00:00:00|2020-06-22 08:17:26|          71.46|
+|115166|2019-06-10 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-01 00:00:00|2020-06-02 17:14:23|           99.9|
+|115331|2019-06-10 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-25 00:00:00|2020-06-26 08:31:55|          71.52|
+|115353|2019-06-10 00:00:00|2020-06-01 00:00:00| 69.9|     R|2020-06-25 00:00:00|2020-06-26 08:31:56|          71.52|
+|115441|2019-06-10 00:00:00|2020-06-01 00:00:00| 64.9|     R|2020-06-09 00:00:00|2020-06-10 08:18:03|          66.27|
+|115474|2019-06-10 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-05 00:00:00|2020-06-08 08:19:25|         101.98|
+|115540|2019-06-10 00:00:00|2020-06-01 00:00:00| 99.9|     R|2020-06-05 00:00:00|2020-06-08 08:19:25|         101.98|
++------+-------------------+-------------------+-----+------+-------------------+-------------------+---------------+
+```
 
 ### c) Encontre quantos boletos foram renegociados no mês de julho de 2020.
 
 **Resposta:**
-Em Branco
+```sql
+select
+    count(id)
+from base_de_dados
+
+where (
+    year(data_emissao) = 2020
+    and month(data_emissao) = 6
+    and (
+        id_renegociacao is not null
+        or id_renegociacao_novo is not null
+    )
+)
+```
+```output
++---------+
+|count(id)|
++---------+
+|        3|
++---------+
+```
 
 ### d) Encontre o valor pago de juros de todos os boletos pagos em junho de 2020.
 
 **Resposta:**
-Em Branco
+
+Valor total de juros pagos por boletos em junho de 2020:
+```sql
+select
+    sum(valor) - sum(pagamento_valor) as juros_total
+from base_de_dados
+
+where (
+    year(data_vencimento) = 2020
+    and status = 'R'
+)
+```
+```output
++------------------+
+|       juros_total|
++------------------+
+|-77888.95000096597|
++------------------+
+```
+
+Juros pagos por boletos em junho de 2020:
+```sql
+select
+    valor - pagamento_valor as juros_total
+from base_de_dados
+
+where (
+    year(data_vencimento) = 2020
+    and status = 'R'
+)
+```
+```output
++-------------------+
+|        juros_total|
++-------------------+
+|                0.0|
+|                0.0|
+|                0.0|
+|                0.0|
+|                0.0|
+|-1.7199999999999989|
+| -5.359999999999999|
+|                0.0|
+|-1.7199999999999989|
+|                0.0|
+| -2.280000000000001|
+|                0.0|
+|-3.0799999999999983|
+| -5.359999999999999|
+|-2.1599999999999966|
+| -5.519999999999996|
+|-10.159999999999997|
+|-2.6400000000000006|
+| -4.239999999999995|
+|                0.0|
++-------------------+
+```
 
 ### e) Encontre o id dos boletos que foram usados para gerar uma renegociação em junho de 2020.
 
 **Resposta:**
-Em Branco
+```sql
+select
+    id
+from base_de_dados
+
+where (
+    year(data_emissao) = 2020
+    and month(data_emissao) = 6
+    and (
+        id_renegociacao is not null
+        or id_renegociacao_novo is not null
+    )
+)
+```
+
+```output
++------+
+|    id|
++------+
+|400729|
+|407525|
+|407525|
++------+
+```
