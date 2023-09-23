@@ -18,22 +18,40 @@ seguir:
 ### a) Como você começaria esse projeto?
 
 **Resposta:**
-Em Branco
+*Essa é de fato, uma tarefa desafiadora.*
+1. Definiria os principais objetivos.
+2. Estudaria o comportamento da API.
+3. Escolheria as ferramentas mais adequadas para a tarefa.
+4. Planejaria a forma de comunicação entre os dois sistemas.
+5. Começaria a desenvolver a solução.
+6. Realizaria testes na solução criada.
+7. Se tudo estivesse funcionando corretamente, implementaria a solução.
+8. Pensaria em uma forma de monitorar continuamente a solução criada.
 
 ### b) Quais tecnologias você usaria? Por quê?
 
 **Resposta:**
-Em Branco
+Python, PostgreSQL, Redis, Celery, Pytest.
+
+**Python:** Acredito que o Python seja uma boa escolha devido à familiaridade não apenas minha, mas também de todo o time com a tecnologia.
+
+**PostgreSQL:** É um banco de dados sólido e confiável.
+
+**Redis:** Acredito que um message broker seria útil nesse desafio.
+
+**Celery:** Temos muito a ganhar ao usar o Celery neste projeto.
+
+**Pytest:** É de suma importância testar nossa solução.
 
 ### c) Faça um esboço da arquitetura dessa solução.
 
 **Resposta:**
-Em Branco
+CRM <-- Nossa Solução <-- ERP
 
 ### d) Você conseguiria estimar quanto tempo levaria essa implementação? Considere uma jornada de trabalho padrão, de 40 horas semanais, de segunda a sexta.
 
 **Resposta:**
-Em Branco
+Como mencionei anteriormente, é uma tarefa muito desafiadora e depende muito do contexto do negócio, além do nível de experiência da equipe. Portanto, fazer uma estimativa precisa sem ter o contexto adequado seria incorreto.
 
 
 ## Questão 2 (Python):
