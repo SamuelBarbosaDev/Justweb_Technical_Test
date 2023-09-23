@@ -10,5 +10,5 @@ urlpatterns = [
     path('cadastrar_agendamento/', CadastrarAgendamento.as_view()),
     path('cancelar_e_editar_agendamento/<int:pk>/', cancelar_e_editar),
     path('listar_agendamentos/', ListarAgendamentos.as_view()),
-    path('agendamento/<int:pk>', AgendamentoEspecifico.as_view())
+    path('agendamento/<int:pk>/', AgendamentoEspecifico.as_view())
 ]
