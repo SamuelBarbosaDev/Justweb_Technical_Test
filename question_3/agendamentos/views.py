@@ -6,3 +6,8 @@ from agendamentos.serializers import AgendamentosSerializer
 class AgendamentosList(generics.ListCreateAPIView):
     queryset = Agendamentos.objects.all()
     serializer_class = AgendamentosSerializer
+
+
+class AgendamentoEspecifico(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Agendamentos.objects.all()
+    serializer_class = AgendamentosSerializer
