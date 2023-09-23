@@ -60,13 +60,13 @@ lista_clientes_2 = set(df_a['id_cliente'])
 display(lista_clientes_2)
 ```
 
-Set é um tipo de dado do python, uma coleção desordenada onde não pode haver números repetidos, então basicamente ao transformar uma lista de 'id_cliente' e um set ele elimina automaticamente as duplicatas, isso é mais eficiente em termos de memória, aqui está a definição de set segundo a documentação do **python**: 
+*Set é um tipo de dado do python, uma coleção desordenada onde não pode haver números repetidos, então basicamente ao transformar uma lista de **'id_cliente'** e um set ele elimina automaticamente as duplicatas, isso é mais eficiente em termos de memória, aqui está a definição de set segundo a documentação do **python**:*
 
-"5.4. Conjuntos
+*"5.4. Conjuntos*
 
-Python também inclui um tipo de dados para conjuntos, chamado set. Um conjunto é uma coleção desordenada de elementos, sem elementos repetidos. Usos comuns para conjuntos incluem a verificação eficiente da existência de objetos e a eliminação de itens duplicados. Conjuntos também suportam operações matemáticas como união, interseção, diferença e diferença simétrica.
+*Python também inclui um tipo de dados para conjuntos, chamado set. Um conjunto é uma coleção desordenada de elementos, sem elementos repetidos. Usos comuns para conjuntos incluem a verificação eficiente da existência de objetos e a eliminação de itens duplicados. Conjuntos também suportam operações matemáticas como união, interseção,diferença e diferença simétrica.*
 
-Chaves ou a função set() podem ser usados para criar conjuntos."
+*Chaves ou a função set() podem ser usados para criar conjuntos." - [Documentação do python](https://docs.python.org/pt-br/3/tutorial/datastructures.html)* 
 
 ### c) Como obter a data_cancelamento (campo do dataframe B) vinculado aos registros do dataframe A?
 
@@ -130,27 +130,171 @@ Baseando-se nessas considerações sobre o sistema, responda as questões que se
 ### a) Como você começaria a trabalhar nesse projeto?
 
 **Resposta:**
-Em Branco
+1. Criaria o repositório do projeto.
+2. Clonaria o repositório para a minha máquina.
+3. Criaria um ambiente virtual.
+4. Instalaria as dependências necessárias.
+5. Criaria o projeto.
+```shell
+django-admin startproject core .
+```
+6. Criaria o app.
+```shell
+python manage.py startapp agendamentos
+```
+7. Adicionaria os apps **agendamentos** e **rest_framework** ao **INSTALLED_APPS** em **core/settings.py**.
+8. Criaria as migrações.
+```shell
+python manage.py makemigrations
+```
+9. Em seguida, aplicaria as migrações.
+```shell
+python manage.py migrate
+```
+10. Criaria os meus models.
+11. Criaria os serializers.
+12. Criaria as views.
+13. Definiria as rotas.
 
 ### b) Escreva um esboço de código para os 4 endpoints solicitados.
 
 **Resposta:**
-Em Branco
+```python
+from rest_framework import status
+from rest_framework import generics
+from django.http import JsonResponse
+from rest_framework import permissions
+from agendamentos.models import Agendamentos
+from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from agendamentos.serializers import AgendamentosSerializer
+from rest_framework.decorators import (
+    api_view,
+    permission_classes
+)
+
+
+class CadastrarAgendamento(generics.CreateAPIView):
+    queryset = Agendamentos.objects.all()
+    serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+@api_view(http_method_names=['PATCH', 'DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def cancelar_e_editar(request, pk):
+    obj = get_object_or_404(klass=Agendamentos, id=pk)
+
+    if request.method == 'PATCH':
+        serializer = AgendamentosSerializer(
+            instance=obj,
+            data=request.data,
+            partial=True
+        )
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return JsonResponse(
+                serializer.data,
+                status=status.HTTP_200_OK
+            )
+
+        return JsonResponse(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    if request.method == 'DELETE':
+        obj.cancelamento = True
+        obj.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ListarAgendamentos(generics.ListCreateAPIView):
+    queryset = Agendamentos.objects.all()
+    serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+
+class AgendamentoEspecifico(generics.RetrieveAPIView):
+    queryset = Agendamentos.objects.all()
+    serializer_class = AgendamentosSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+```
 
 ### c) Como você implementaria a validação de não permitir agendar dois clientes no mesmo horário?
 
 **Resposta:**
-Em Branco
+```python
+def validate_data(self, value):
+    if value < timezone.now():
+        raise serializers.ValidationError(
+            detail='O agendamento não pode ser feito no passado.',
+            code=status.HTTP_400_BAD_REQUEST
+        )
+
+    if value not in get_horario_disponiveis(value.date()):
+        raise serializers.ValidationError(
+            'Esse horário não está disponível.'
+        )
+
+    return value
+```
 
 ### d) Como você poderia processar requisições que tentam agendar dois clientes no mesmo horário?
 
 **Resposta:**
-Em Branco
+*Você mencionou 'requisições', o que implica em mais de uma solicitação. Isso significa que uma delas será processada antes da outra. Assim que a primeira requisição tiver o seu agendamento registrado no banco de dados, a validação acima não permitirá outro agendamento no mesmo horário.*
 
 ### e) Apresente uma implementação do cálculo de vagas de agendamento. Suponha que cada atendimento demora 30 minutos para ser concluído e a clínica só funcione das 08:00 às 18:00, inclusive no horário do almoço. Desconsidere sábados e domingos.
 
 **Resposta:**
-Em Branco
+```python
+from typing import Iterable
+from agendamentos.models import Agendamentos
+from datetime import (
+    date,
+    datetime,
+    timedelta,
+    timezone
+)
+
+
+def get_horario_disponiveis(data: date) -> Iterable[datetime]:
+    """
+    Retorna uma lista com objetos do tipo datetime cujas datas são o mesmo dia
+    passado (data) e os horários são os horário disponíveis para aquele dia,
+    conforme outros agendamentos existem.
+    """
+
+    start = datetime(
+        year=data.year,
+        month=data.month,
+        day=data.day,
+        hour=8,
+        minute=0,
+        tzinfo=timezone.utc
+    )
+    end = datetime(
+        year=data.year,
+        month=data.month,
+        day=data.day,
+        hour=18,
+        minute=0,
+        tzinfo=timezone.utc
+    )
+    delta = timedelta(minutes=30)
+    horario_disponiveis = set()
+
+    while start < end:
+        if not Agendamentos.objects.filter(data=start).exists():
+            horario_disponiveis.add(start)
+        start = start + delta
+
+    return horario_disponiveis
+```
 
 
 ## Questão 4 (SQL):
